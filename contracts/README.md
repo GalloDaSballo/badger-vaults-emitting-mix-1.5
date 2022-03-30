@@ -1,6 +1,6 @@
 # Contracts
 
-## MyStrategy
+## EmittingStrategy
 
 The strategy you'll write
 

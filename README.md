@@ -8,7 +8,7 @@ See Vaults 1.5 Repo for Audit Reports
 
 ## What you'll find here
 
-- Basic Solidity Smart Contract for creating your own Badger Strategy ([`contracts/MyStrategy.sol`](contracts/MyStrategy.sol))
+- Basic Solidity Smart Contract for creating your own Badger Strategy ([`contracts/EmittingStrategy.sol`](contracts/EmittingStrategy.sol))
 
 - Sample test suite that runs on mainnet fork. ([`tests`](tests))
 
@@ -69,7 +69,7 @@ Deployment will set up a Vault, Controller and deploy your strategy
 
 2. Modify the `/_setup` folder for basic config as well as the StrategyResolver
 
-3. Write you `MyStrategy`
+3. Write you `EmittingStrategy`
 
 4. Run tests: `brownie test --interactive` and debug anytime you get an error
 
@@ -79,7 +79,7 @@ Deployment will set up a Vault, Controller and deploy your strategy
 To ship a valid strategy, that will be evaluated to deploy on mainnet, with potentially $100M + in TVL, you need to:
 
 1. Add custom config in `/_setup_/config.py`
-2. Write the Strategy Code in MyStrategy.sol
+2. Write the Strategy Code in EmittingStrategy.sol
 3. Customize the StrategyResolver in `/_setup/StrategyResolver.py` so that snapshot testing can verify that operations happened correctly
 4. Write any extra test to confirm that the strategy is working properly
 
@@ -93,14 +93,14 @@ Most strategies have a:
 
 ## Implementing Strategy Logic
 
-[`contracts/MyStrategy.sol`](contracts/MyStrategy.sol) is where you implement your own logic for your strategy. In particular:
+[`contracts/EmittingStrategy.sol`](contracts/EmittingStrategy.sol) is where you implement your own logic for your strategy. In particular:
 
 - Customize the `initialize` Method
-- Set a name in `MyStrategy.getName()`
+- Set a name in `EmittingStrategy.getName()`
 - Make a list of all position tokens that should be protected against movements via `Strategy.protectedTokens()`.
-- Write a way to calculate the want invested in `MyStrategy.balanceOfPool()`
-- Write a way to calculate the rewards accrued in `MyStrategy.balanceOfRewards()`
-- Write a method that returns true if the Strategy should be tended in `MyStrategy.isTendable()`
+- Write a way to calculate the want invested in `EmittingStrategy.balanceOfPool()`
+- Write a way to calculate the rewards accrued in `EmittingStrategy.balanceOfRewards()`
+- Write a method that returns true if the Strategy should be tended in `EmittingStrategy.isTendable()`
 - Invest your want tokens via `Strategy._deposit()`.
 - Take profits and repay debt via `Strategy._harvest()`.
 - Unwind enough of your position to payback withdrawals via `Strategy._withdrawSome()`.

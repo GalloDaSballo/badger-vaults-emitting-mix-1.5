@@ -5,7 +5,7 @@ pragma experimental ABIEncoderV2;
 
 import {BaseStrategy} from "@badger-finance/BaseStrategy.sol";
 
-contract MyStrategy is BaseStrategy {
+contract EmittingStrategy is BaseStrategy {
 // address public want; // Inherited from BaseStrategy
     // address public lpComponent; // Token that represents ownership in a pool, not always used
     // address public reward; // Token we farm
@@ -32,7 +32,7 @@ contract MyStrategy is BaseStrategy {
     
     /// @dev Return the name of the strategy
     function getName() external pure override returns (string memory) {
-        return "MyStrategy";
+        return "EmittingStrategy";
     }
 
     /// @dev Return a list of protected tokens
