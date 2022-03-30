@@ -1,5 +1,5 @@
 
-# Badger Strategy V1.5 Brownie Mix
+# Badger Strategy V1.5 Brownie Mix - EXPERIMENTAL - BADGER REWARDS INTEGRATION
 
 See Vaults 1.5 Repo for Audit Reports
 
