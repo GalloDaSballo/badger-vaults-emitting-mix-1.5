@@ -80,11 +80,11 @@ contract EmittingStrategy is BaseStrategy {
         harvested[1] = TokenAmount(BADGER, 0);
 
         // keep this to get paid!
-        _reportToVault(0);
+        _reportToVault(0); // Keep at 0 as the strat emits
         
         // Use this if your strategy doesn't sell the extra tokens
         // This will take fees and send the token to the badgerTree
-        _processExtraToken(want, 0);
+        _processExtraToken(BADGER, 0); // Emit the token here
 
         return harvested;
     }
