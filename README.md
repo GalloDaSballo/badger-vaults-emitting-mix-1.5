@@ -1,13 +1,9 @@
 
-# Badger Strategy V1.5 Brownie Mix - EXPERIMENTAL - BADGER REWARDS INTEGRATION
-
-TODO: Change Readme
+# Badger Strategy V1.5 Brownie Emitting Strategy Mix
 
 EmittingStrategy -> Farms tokens, emits to Tree
 Tree = RewardsManager / BadgerRewards
-AutoCompoundingStrategy -> Deposits into EmittingStrategy, Claims from Tree, Dumps the tokens
-
-
+AutoCompoundingStrategy -> Deposits into EmittingStrategy, Claims from Tree, Dumps the tokens <- delete comment after fork
 
 See Vaults 1.5 Repo for Audit Reports
 
