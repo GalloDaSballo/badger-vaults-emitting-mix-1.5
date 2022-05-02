@@ -5,6 +5,8 @@ pragma experimental ABIEncoderV2;
 
 import {BaseStrategy} from "@badger-finance/BaseStrategy.sol";
 
+// TODO: Unused until version 2 of the mix
+
 contract AutoCompoundingStrategy is BaseStrategy {
 // address public want; // Inherited from BaseStrategy
     // address public lpComponent; // Token that represents ownership in a pool, not always used

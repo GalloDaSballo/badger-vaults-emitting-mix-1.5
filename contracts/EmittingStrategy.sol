@@ -4,21 +4,23 @@ pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
 import {BaseStrategy} from "@badger-finance/BaseStrategy.sol";
+import {IERC20Upgradeable} from "@openzeppelin-contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 contract EmittingStrategy is BaseStrategy {
 // address public want; // Inherited from BaseStrategy
     // address public lpComponent; // Token that represents ownership in a pool, not always used
-    // address public reward; // Token we farm
+    address public reward; // Token we farm
 
     address constant BADGER = 0x3472A5A71965499acd81997a54BBA8D852C6E53d;
 
     /// @dev Initialize the Strategy with security settings as well as tokens
     /// @notice Proxies will set any non constant variable you declare as default value
     /// @dev add any extra changeable variable at end of initializer as shown
-    function initialize(address _vault, address[1] memory _wantConfig) public initializer {
+    function initialize(address _vault, address[2] memory _wantConfig) public initializer {
         __BaseStrategy_init(_vault);
         /// @dev Add config here
         want = _wantConfig[0];
+        reward = _wantConfig[1];
         
         // If you need to set new values that are not constants, set them like so
         // stakingContract = 0x79ba8b76F61Db3e7D994f7E384ba8f7870A043b7;
@@ -41,7 +43,7 @@ contract EmittingStrategy is BaseStrategy {
     function getProtectedTokens() public view virtual override returns (address[] memory) {
         address[] memory protectedTokens = new address[](2);
         protectedTokens[0] = want;
-        protectedTokens[1] = BADGER;
+        protectedTokens[1] = reward;
         return protectedTokens;
     }
 
@@ -71,20 +73,20 @@ contract EmittingStrategy is BaseStrategy {
     }
 
     function _harvest() internal override returns (TokenAmount[] memory harvested) {
-        // No-op as we don't do anything with funds
-        // use autoCompoundRatio here to convert rewards to want ...
+        address cachedReward = reward;
 
-        // Nothing harvested, we have 2 tokens, return both 0s
+        uint256 balanceOfReward = IERC20Upgradeable(cachedReward).balanceOf(address(this));
+
         harvested = new TokenAmount[](2);
         harvested[0] = TokenAmount(want, 0);
-        harvested[1] = TokenAmount(BADGER, 0);
+        harvested[1] = TokenAmount(cachedReward, balanceOfReward);
 
         // keep this to get paid!
         _reportToVault(0); // Keep at 0 as the strat emits
         
         // Use this if your strategy doesn't sell the extra tokens
         // This will take fees and send the token to the badgerTree
-        _processExtraToken(BADGER, 0); // Emit the token here
+        _processExtraToken(cachedReward, balanceOfReward); // Emit the token here
 
         return harvested;
     }
@@ -108,10 +110,14 @@ contract EmittingStrategy is BaseStrategy {
     /// @dev Return the balance of rewards that the strategy has accrued
     /// @notice Used for offChain APY and Harvest Health monitoring
     function balanceOfRewards() external view override returns (TokenAmount[] memory rewards) {
+        address cachedReward = reward;
+
+        uint256 balanceOfReward = IERC20Upgradeable(cachedReward).balanceOf(address(this));
+
         // Rewards are 0
         rewards = new TokenAmount[](2);
         rewards[0] = TokenAmount(want, 0);
-        rewards[1] = TokenAmount(BADGER, 0); 
+        rewards[1] = TokenAmount(cachedReward, balanceOfReward); 
         return rewards;
     }
 }

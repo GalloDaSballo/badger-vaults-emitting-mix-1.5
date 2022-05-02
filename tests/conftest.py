@@ -2,6 +2,7 @@ import time
 
 from brownie import (
     EmittingStrategy,
+    BadgerTree,
     TheVault,
     interface,
     accounts,
@@ -9,6 +10,9 @@ from brownie import (
 from _setup.config import (
     WANT, 
     WHALE_ADDRESS,
+
+    REWARD,
+    REWARD_WHALE,
 
     PERFORMANCE_FEE_GOVERNANCE,
     PERFORMANCE_FEE_STRATEGIST,
@@ -83,10 +87,21 @@ def proxyAdmin():
 def randomUser():
     return accounts[7]
 
-@pytest.fixture
-def badgerTree():
-    return accounts[8]
 
+@pytest.fixture
+def reward():
+    return interface.IERC20Detailed(REWARD)
+
+@pytest.fixture
+def reward_whale():
+    return accounts.at(REWARD_WHALE, force=True)
+
+@pytest.fixture
+def badgerTree(deployer):
+  c = BadgerTree.deploy({"from": deployer})
+  c.startNextEpoch()
+
+  return c
 
 
 @pytest.fixture
@@ -119,7 +134,7 @@ def deployed(want, deployer, strategist, keeper, guardian, governance, proxyAdmi
     # NOTE: TheVault starts unpaused
 
     strategy = EmittingStrategy.deploy({"from": deployer})
-    strategy.initialize(vault, [want])
+    strategy.initialize(vault, [want, REWARD])
     # NOTE: Strategy starts unpaused
 
     vault.setStrategy(strategy, {"from": governance})
@@ -149,7 +164,6 @@ def vault(deployed):
 @pytest.fixture
 def strategy(deployed):
     return deployed.strategy
-
 
 
 @pytest.fixture

@@ -1,6 +1,10 @@
 ## Token deposited in the vault
 WANT = "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"
 
+## Tokens emitted
+REWARD = "0x3472A5A71965499acd81997a54BBA8D852C6E53d" ## Badger
+REWARD_WHALE = "0xd0a7a8b98957b9cd3cfb9c0425abe44551158e9e" ## Badger Multi
+
 ## Account that has a lot of want (we will "borrow it" for testing)
 WHALE_ADDRESS = "0xbf72da2bd84c5170618fbe5914b0eca9638d5eb5"
 
