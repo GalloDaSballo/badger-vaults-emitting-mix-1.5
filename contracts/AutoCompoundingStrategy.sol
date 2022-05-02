@@ -5,7 +5,7 @@ pragma experimental ABIEncoderV2;
 
 import {BaseStrategy} from "@badger-finance/BaseStrategy.sol";
 
-// TODO: Unused until version 2 of the mix
+// NOTICE: This file is unused, delete after forked
 
 contract AutoCompoundingStrategy is BaseStrategy {
 // address public want; // Inherited from BaseStrategy
