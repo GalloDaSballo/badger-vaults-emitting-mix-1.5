@@ -112,15 +112,35 @@ contract AutoCompoundingStrategyUnderlying is BaseStrategy {
     function _harvest() internal override returns (TokenAmount[] memory harvested) {
         /// NOTE: The caller must also claimReward on behalf of the strategy for this to work
 
-        /// The strategy can then process the tokens and auto-compound them
+        address cachedReward = reward;
+        address cachedWant = want;
+
+        uint256 balanceOfReward = IERC20Upgradeable(cachedReward).balanceOf(address(this));
 
         // Nothing harvested, we have 2 tokens, return both 0s
         harvested = new TokenAmount[](2);
-        harvested[0] = TokenAmount(want, 0);
-        harvested[1] = TokenAmount(BADGER, 0);
+        harvested[0] = TokenAmount(cachedWant, 0);
+        harvested[1] = TokenAmount(cachedReward, 0);
+
+        if(balanceOfReward == 0) {
+            return harvested; // Early 0 return
+        }
+
+        /// The strategy can then process the tokens and auto-compound them
+        uint256 initialbalanceOfWant = balanceOfWant();
+
+        // TODO: Sell reward for want here
+        // 
+
+        uint256 difference = IERC20Upgradeable(cachedWant).balanceOf(address(this)).sub(initialbalanceOfWant);
+
+        harvested[0] = TokenAmount(cachedWant, difference);
 
         // keep this to get paid!
-        _reportToVault(0); // Sell and report here
+        _reportToVault(difference);
+
+        // May as well re-invest
+        _deposit(difference);
 
         return harvested;
     }
@@ -128,10 +148,18 @@ contract AutoCompoundingStrategyUnderlying is BaseStrategy {
 
     // Example tend is a no-op which returns the values, could also just revert
     function _tend() internal override returns (TokenAmount[] memory tended){
-        // Nothing tended
+        // Nothing tended as we always auto-sell the tokens
+        address cachedWant = want;
+
+        uint256 availableWant = IERC20Upgradeable(cachedWant).balanceOf(address(this));
+
+        if(availableWant > 0){
+            _deposit(availableWant);
+        }
+
         tended = new TokenAmount[](2);
-        tended[0] = TokenAmount(want, 0);
-        tended[1] = TokenAmount(BADGER, 0); 
+        tended[0] = TokenAmount(cachedWant, availableWant);
+        tended[1] = TokenAmount(reward, 0); 
         return tended;
     }
 
