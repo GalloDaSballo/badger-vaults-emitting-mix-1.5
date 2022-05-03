@@ -37,10 +37,13 @@ def test_are_you_trying(deployer, user, reward, reward_whale, badgerTree, vault,
     # Use this if it should invest all
     assert want.balanceOf(strategy) == 0 ## Most staking invest all, change to above if needed
 
-    ## Simulate earning by sending yield to the underlying emitting vaults strategy
-    reward.transfer(underlying_vault_strategy, 10e18, {"from": reward_whale})
-
     harvest = strategy.harvest({"from": governance})
+
+    ## TEST 2: Is the Harvest profitable?
+    harvest = strategy.harvest({"from": governance})
+    event = harvest.events["Harvested"]
+    # If it doesn't print, we don't want it
+    assert event["amount"] > 0
 
     ## Optional: Does the strategy emit anything?
     # event = harvest.events["TreeDistribution"]

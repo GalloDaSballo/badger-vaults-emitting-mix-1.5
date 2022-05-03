@@ -76,9 +76,6 @@ def deployed_autocompound(deployed, want, deployer, strategist, keeper, guardian
     strategy.initialize(vault, [want, REWARD, deployed.vault], {"from": deployer})
     # NOTE: Strategy starts unpaused
 
-    ## Simulate earning by sending a deposit of rewards[0]
-    reward.transfer(strategy, 10e18, {"from": reward_whale})
-
     vault.setStrategy(strategy, {"from": governance})
 
     return DotMap(
