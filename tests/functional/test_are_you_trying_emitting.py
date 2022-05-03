@@ -1,6 +1,7 @@
 from brownie import *
 from helpers.constants import MaxUint256
 
+## TODO: Make test fail by default so dev has to fix
 
 def test_are_you_trying(deployer, user, reward, reward_whale, badgerTree, vault, strategy, want, governance):
     """
@@ -40,7 +41,7 @@ def test_are_you_trying(deployer, user, reward, reward_whale, badgerTree, vault,
     assert strategy.balanceOfWant() == depositAmount * vault.toEarnBps() // vault.MAX_BPS()
 
     ## Simulate earning by sending a deposit of rewards[0]
-    reward.transfer(strategy, 10e18, {"from": reward_whale})
+    reward.transfer(strategy, 10e18, {"from": reward_whale}) ## TODO: Remove
 
     harvest = strategy.harvest({"from": governance})
 

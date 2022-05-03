@@ -7,11 +7,8 @@ import {BaseStrategy} from "@badger-finance/BaseStrategy.sol";
 import {IERC20Upgradeable} from "@openzeppelin-contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 contract EmittingStrategy is BaseStrategy {
-// address public want; // Inherited from BaseStrategy
-    // address public lpComponent; // Token that represents ownership in a pool, not always used
+    // address public want; // Inherited from BaseStrategy
     address public reward; // Token we farm
-
-    address constant BADGER = 0x3472A5A71965499acd81997a54BBA8D852C6E53d;
 
     /// @dev Initialize the Strategy with security settings as well as tokens
     /// @notice Proxies will set any non constant variable you declare as default value
@@ -73,6 +70,7 @@ contract EmittingStrategy is BaseStrategy {
     }
 
     function _harvest() internal override returns (TokenAmount[] memory harvested) {
+        // Any time you use Storage var more than once, just cache and read from memory
         address cachedReward = reward;
 
         uint256 balanceOfReward = IERC20Upgradeable(cachedReward).balanceOf(address(this));
@@ -97,7 +95,7 @@ contract EmittingStrategy is BaseStrategy {
         // Nothing tended
         tended = new TokenAmount[](2);
         tended[0] = TokenAmount(want, 0);
-        tended[1] = TokenAmount(BADGER, 0); 
+        tended[1] = TokenAmount(reward, 0); 
         return tended;
     }
 

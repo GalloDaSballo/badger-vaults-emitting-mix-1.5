@@ -105,7 +105,7 @@ def badgerTree(deployer):
 
 
 @pytest.fixture
-def deployed(want, deployer, strategist, keeper, guardian, governance, proxyAdmin, randomUser, badgerTree):
+def deployed(want, deployer, strategist, keeper, guardian, governance, proxyAdmin, randomUser, badgerTree, reward, reward_whale):
     """
     Deploys, vault and test strategy, mock token and wires them up.
     """
@@ -137,6 +137,9 @@ def deployed(want, deployer, strategist, keeper, guardian, governance, proxyAdmi
     strategy.initialize(vault, [want, REWARD])
     # NOTE: Strategy starts unpaused
 
+    ## Simulate earning by sending a deposit of rewards[0]
+    reward.transfer(strategy, 10e18, {"from": reward_whale})
+
     vault.setStrategy(strategy, {"from": governance})
 
     return DotMap(
@@ -162,7 +165,9 @@ def vault(deployed):
 
 
 @pytest.fixture
-def strategy(deployed):
+def strategy(deployed, reward, reward_whale):
+    ## Simulate earning by sending a deposit of rewards[0]
+    reward.transfer(deployed.strategy, 10e18, {"from": reward_whale}) ## TODO: Remove
     return deployed.strategy
 
 
@@ -197,6 +202,7 @@ def setup_share_math(deployer, vault, want, governance):
     vault.earn({"from": governance})
 
     return DotMap(depositAmount=depositAmount)
+
 
 
 ## Forces reset before each test

@@ -4,32 +4,48 @@ pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
 import {BaseStrategy} from "@badger-finance/BaseStrategy.sol";
+import {IERC20Upgradeable} from "@openzeppelin-contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
-// NOTICE: This file is unused, delete after forked
 
-contract AutoCompoundingStrategy is BaseStrategy {
-// address public want; // Inherited from BaseStrategy
-    // address public lpComponent; // Token that represents ownership in a pool, not always used
-    // address public reward; // Token we farm
+import {IStrategy} from "../../interfaces/badger/IStrategy.sol";
+import {ISett15} from "../../interfaces/badger/ISett15.sol";
+
+
+/// @dev A autocompounding strategy denominated in the underlying
+/// TODO: Double check the math please
+contract AutoCompoundingStrategyUnderlying is BaseStrategy {
+    // address public want; // Inherited from BaseStrategy
+    // uint256 public constant MAX_BPS = 10_000; // Inherited from BaseStrategy
+    uint256 public constant ONE_ETH = 1e18;
+    
+    address public reward; // Token we farm
+    ISett15 public emittingVault; // Sett we will use for gaining tokens
+    address public claimTree; // Tree that the emitting strategy is using, which we'll claim from
 
     address constant BADGER = 0x3472A5A71965499acd81997a54BBA8D852C6E53d;
-
     /// @dev Initialize the Strategy with security settings as well as tokens
     /// @notice Proxies will set any non constant variable you declare as default value
     /// @dev add any extra changeable variable at end of initializer as shown
-    function initialize(address _vault, address[1] memory _wantConfig) public initializer {
+    function initialize(address _vault, address[3] memory _wantConfig) public initializer {
         __BaseStrategy_init(_vault);
         /// @dev Add config here
         want = _wantConfig[0];
+        reward = _wantConfig[1];
+
+        ISett15 _depositVault = ISett15(_wantConfig[2]);
+
+        emittingVault = _depositVault;
+
+        claimTree = _depositVault.badgerTree();
         
         // If you need to set new values that are not constants, set them like so
         // stakingContract = 0x79ba8b76F61Db3e7D994f7E384ba8f7870A043b7;
 
         // If you need to do one-off approvals do them here like so
-        // IERC20Upgradeable(reward).safeApprove(
-        //     address(DX_SWAP_ROUTER),
-        //     type(uint256).max
-        // );
+        IERC20Upgradeable(want).safeApprove(
+            address(_depositVault),
+            type(uint256).max
+        );
     }
     
     /// @dev Return the name of the strategy
@@ -41,29 +57,50 @@ contract AutoCompoundingStrategy is BaseStrategy {
     /// @notice It's very important all tokens that are meant to be in the strategy to be marked as protected
     /// @notice this provides security guarantees to the depositors they can't be sweeped away
     function getProtectedTokens() public view virtual override returns (address[] memory) {
-        address[] memory protectedTokens = new address[](2);
+        address[] memory protectedTokens = new address[](3);
         protectedTokens[0] = want;
-        protectedTokens[1] = BADGER;
+        protectedTokens[1] = address(emittingVault);
+        protectedTokens[2] = reward;
         return protectedTokens;
     }
 
     /// @dev Deposit `_amount` of want, investing it to earn yield
     function _deposit(uint256 _amount) internal override {
-        // Add code here to invest `_amount` of want to earn yield 
+        // Add code here to invest `_amount` of want to earn yield
+        emittingVault.deposit(_amount);
     }
 
     /// @dev Withdraw all funds, this is used for migrations, most of the time for emergency reasons
     function _withdrawAll() internal override {
-        // Add code here to unlock all available funds
+        // Withdraw everything
+        emittingVault.withdrawAll();
     }
 
     /// @dev Withdraw `_amount` of want, so that it can be sent to the vault / depositor
     /// @notice just unlock the funds and return the amount you could unlock
-    function _withdrawSome(uint256 _amount) internal override returns (uint256) {
-        // Add code here to unlock / withdraw `_amount` of tokens to the withdrawer
-        // If there's a loss, make sure to have the withdrawer pay the loss to avoid exploits
-        // Socializing loss is always a bad idea
-        return _amount;
+    function _withdrawSome(uint256 _amountOfUnderlying) internal override returns (uint256) {
+        // Given conversion rate, withdraw what needs to be withdrawn
+        uint256 shares = emittingVault.balanceOf(address(this));
+
+        uint256 pricePerFullShare = emittingVault.getPricePerFullShare();
+
+        uint256 withdrawalFee = emittingVault.withdrawalFee();
+
+        // Calculate shares from out
+        uint256 sharesFromOut = _amountOfUnderlying.mul(ONE_ETH).div(pricePerFullShare);
+
+        // Calculate fee from out
+        uint256 feeFromOut = _amountOfUnderlying.mul(withdrawalFee).div(MAX_BPS);
+
+        // Calculate shares from fee
+        uint256 sharesFromFee = feeFromOut.mul(ONE_ETH).div(pricePerFullShare);
+
+        // Add them
+        uint256 totalShares = sharesFromOut.add(sharesFromFee);
+
+        emittingVault.withdraw(totalShares);
+
+        return _amountOfUnderlying;
     }
 
 
@@ -73,8 +110,9 @@ contract AutoCompoundingStrategy is BaseStrategy {
     }
 
     function _harvest() internal override returns (TokenAmount[] memory harvested) {
-        // No-op as we don't do anything with funds
-        // use autoCompoundRatio here to convert rewards to want ...
+        /// NOTE: The caller must also claimReward on behalf of the strategy for this to work
+
+        /// The strategy can then process the tokens and auto-compound them
 
         // Nothing harvested, we have 2 tokens, return both 0s
         harvested = new TokenAmount[](2);
@@ -97,10 +135,19 @@ contract AutoCompoundingStrategy is BaseStrategy {
         return tended;
     }
 
+
     /// @dev Return the balance (in want) that the strategy has invested somewhere
     function balanceOfPool() public view override returns (uint256) {
-        // Change this to return the amount of want invested in another protocol
-        return 0;
+        uint256 shares = emittingVault.balanceOf(address(this));
+
+        uint256 pricePerFullShare = emittingVault.getPricePerFullShare();
+
+        uint256 withdrawalFee = emittingVault.withdrawalFee();
+
+        // NOTE: Has to account for withdrawalFee
+        // shares * pricePerFullShare * (1 - withdrawal fee)
+        // Works even if fee is 0, as we are dividing 10_000 / 10_000
+        return shares.mul(pricePerFullShare).mul(MAX_BPS).div(MAX_BPS.sub(withdrawalFee));
     }
 
     /// @dev Return the balance of rewards that the strategy has accrued
