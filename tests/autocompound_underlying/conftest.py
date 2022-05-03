@@ -2,6 +2,7 @@ import time
 
 from brownie import (
     AutoCompoundingStrategyUnderlying,
+    EmittingStrategy,
     BadgerTree,
     TheVault,
     interface,
@@ -81,6 +82,7 @@ def deployed_autocompound(deployed, want, deployer, strategist, keeper, guardian
     return DotMap(
         deployer=deployer,
         vault=vault,
+        emittingVault=deployed.vault,
         strategy=strategy,
         want=want,
         governance=governance,
@@ -99,6 +101,13 @@ def deployed_autocompound(deployed, want, deployer, strategist, keeper, guardian
 def vault(deployed_autocompound):
     return deployed_autocompound.vault
 
+@pytest.fixture
+def emitting_vault(deployed_autocompound):
+    return deployed_autocompound.emittingVault
+
+@pytest.fixture
+def emitting_strategy(emitting_vault):
+    return EmittingStrategy.at(emitting_vault.strategy())
 
 @pytest.fixture
 def strategy(deployed_autocompound):
