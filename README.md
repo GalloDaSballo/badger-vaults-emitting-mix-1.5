@@ -7,12 +7,33 @@ Tree = RewardsManager / BadgerRewards
 
 AutoCompoundingStrategy -> Deposits into EmittingStrategy, Claims from Tree, Dumps the tokens <- delete comment after fork
 
-See Vaults 1.5 Repo for Audit Reports
+## Notes on mix assumptions
 
-- Video Introduction: https://youtu.be/b5NptGHm8gw
-- Example Project: [Avalanche wBTC AAVE Simple Deposit Strategy](https://github.com/GalloDaSballo/avalance-wbtc-aave-1.5)
+The mix is based on the idea that you can have:
+- Emitting Strategy: Stakes in a protocol, earns rewards, emits them to the tree
+- BadgerTree: Allows depositors of the Emitting Vault to claim these tokens
+- AutocompoundingStrategy: Deposits into the Emitting vault, claims the rewards and sells them for more want
 
-## What you'll find here
+For that reason I'd recommend always testing and setting up the EmittingStrategy First
+Then setup the AutocompoundingStrategy
+
+Initial Boilerplate as well as tests that are failing on purpose are setup for you to code the rest.
+
+A valid submission requires:
+- All tests passing
+- Edited the StrategyResolver
+- Strategy is Profitable
+
+Based on your use-case, you can delete the AutocompoundingStrategy, use a strategy that uses the vault token as want, or a mix of those. This is dependent on what you need.
+
+For that reason, this mix is for advanced developers only as it's very hard to help you once you start making changes
+
+
+----
+
+
+# COPIED FROM 1.5 MIX Use your brain
+## What you'll find here 
 
 - Basic Solidity Smart Contract for creating your own Badger Strategy ([`contracts/EmittingStrategy.sol`](contracts/EmittingStrategy.sol))
 
