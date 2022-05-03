@@ -130,7 +130,7 @@ contract AutoCompoundingStrategyUnderlying is BaseStrategy {
         uint256 initialbalanceOfWant = balanceOfWant();
 
         // TODO: Sell reward for want here
-        // 
+        //  Idea of how to find optimal swap here: https://github.com/GalloDaSballo/strategy-ftm-solidex-DCA-templatized/blob/af10111d0b5c0acb167ced7999960b6c0fbc138d/contracts/StrategyGenericSolidexDCA.sol#L373
 
         uint256 difference = IERC20Upgradeable(cachedWant).balanceOf(address(this)).sub(initialbalanceOfWant);
 

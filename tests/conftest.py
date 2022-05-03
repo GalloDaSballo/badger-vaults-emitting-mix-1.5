@@ -1,5 +1,7 @@
+"""
+This conftest setups the emitting strategy which is the base of any other strategy you want to test
+"""
 import time
-
 from brownie import (
     EmittingStrategy,
     BadgerTree,

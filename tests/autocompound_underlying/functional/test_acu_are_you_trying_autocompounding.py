@@ -40,40 +40,14 @@ def test_are_you_trying(deployer, user, reward, reward_whale, badgerTree, vault,
     # Change to this if the strat is supposed to hodl and do nothing
     assert strategy.balanceOfWant() == depositAmount * vault.toEarnBps() // vault.MAX_BPS()
 
-    ## Simulate earning by sending a deposit of rewards[0]
-    reward.transfer(strategy, 10e18, {"from": reward_whale}) ## TODO: Remove
+    ## Simulate earning by sending yield to the underlying emitting vaults strategy
+    reward.transfer(underlying_vault_strategy, 10e18, {"from": reward_whale})
 
     harvest = strategy.harvest({"from": governance})
 
-    ## TEST 2: Does the strategy emit anything?
-    event = harvest.events["TreeDistribution"]
-    assert event["token"] == reward.address ## Add token you emit
-    assert event["amount"] > 0 ## We want it to emit something
-
-    ## Test 3: Verify the badgerTree shows rewards for the Depositor
-    current_epoch = badgerTree.currentEpoch()
-    assert badgerTree.rewards(current_epoch, vault, reward) > 0
-
-    ## Accrue so we get total points
-    badgerTree.accrueUser(current_epoch, vault, user)
-
-    ## Tracking is somewhat correct
-    assert badgerTree.getBalanceAtEpoch(current_epoch, vault, user)[0] > 0
-
-    ## And total points are non-zero
-    assert badgerTree.points(current_epoch, vault, user) > 0
-
-    ## Wait for end of epoch
-    chain.sleep(badgerTree.SECONDS_PER_EPOCH() + 1)
-    chain.mine()
-    badgerTree.startNextEpoch({"from": user})
-
-    user_reward_balance_prev = reward.balanceOf(user)
-
-    ## Have user claim
-    badgerTree.claimReward(current_epoch, vault, reward, user)
-
-    ## They receive 100% of rewards (only depositor)
-    assert reward.balanceOf(user) - user_reward_balance_prev == event["amount"]
+    ## Optional: Does the strategy emit anything?
+    # event = harvest.events["TreeDistribution"]
+    # assert event["token"] == reward.address ## Add token you emit
+    # assert event["amount"] > 0 ## We want it to emit something
 
 
