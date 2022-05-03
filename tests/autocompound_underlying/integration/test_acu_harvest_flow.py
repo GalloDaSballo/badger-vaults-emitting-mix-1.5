@@ -1,7 +1,7 @@
 import brownie
 from brownie import *
 from helpers.constants import MaxUint256
-from helpers.SnapshotManager import SnapshotManager
+from helpers.SnapshotManagerAutocompounding import SnapshotManager
 from helpers.time import days
 
 
