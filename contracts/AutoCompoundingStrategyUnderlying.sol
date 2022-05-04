@@ -175,7 +175,7 @@ contract AutoCompoundingStrategyUnderlying is BaseStrategy {
         // NOTE: Has to account for withdrawalFee
         // shares * pricePerFullShare * (1 - withdrawal fee)
         // Works even if fee is 0, as we are dividing 10_000 / 10_000
-        return shares.mul(pricePerFullShare).mul(MAX_BPS).div(MAX_BPS.sub(withdrawalFee));
+        return shares.mul(pricePerFullShare).mul(MAX_BPS.sub(withdrawalFee)).div(MAX_BPS).div(ONE_ETH);
     }
 
     /// @dev Return the balance of rewards that the strategy has accrued
