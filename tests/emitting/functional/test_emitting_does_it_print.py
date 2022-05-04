@@ -52,7 +52,7 @@ def test_is_profitable(vault, strategy, want, randomUser, deployer):
 
     assert ending_balance > initial_balance_with_fees
 
-def test_is_acceptable_apr(vault, strategy, want, keeper, deployer):
+def test_is_acceptable_apr(vault, reward, strategy, want, keeper, deployer):
     snap = SnapshotManager(vault, strategy, "StrategySnapshot")
 
     # Deposit
@@ -82,12 +82,12 @@ def test_is_acceptable_apr(vault, strategy, want, keeper, deployer):
     strategy.harvest({"from": keeper})
 
     # Harvest should be non-zero if strat is printing
-    assert vault.lastHarvestAmount() > 0
+    assert vault.lastAdditionalTokenAmount(reward) > 0    # Ensure strategy reports correct harvestedAmount
     # Ensure strategy reports correct harvestedAmount
     assert vault.assetsAtLastHarvest() == vault_balance1
 
     #  Over a year
     apr = 52 * vault.lastHarvestAmount() / vault.assetsAtLastHarvest()
-
+    ## TODO: Calculate APR based on reward value
     print(f"APR: {apr}")
     assert apr > MIN_ACCEPTABLE_APR

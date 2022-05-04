@@ -188,7 +188,7 @@ def test_migrate_single_user(deployer, vault, strategy, want, governance, keeper
     assert after["stratWant"] == 0
 
 
-def test_single_user_harvest_flow_remove_fees(deployer, vault, strategy, want, keeper):
+def test_single_user_harvest_flow_remove_fees(deployer, reward, vault, strategy, want, keeper):
     # Setup
     randomUser = accounts[6]
     snap = SnapshotManager(vault, strategy, "StrategySnapshot")
@@ -221,7 +221,7 @@ def test_single_user_harvest_flow_remove_fees(deployer, vault, strategy, want, k
     snap.settHarvest({"from": keeper})
 
     ## If the strategy is printing, this should be true
-    assert vault.balanceOf(vault.treasury()) > 0
+    assert reward.balanceOf(vault.treasury()) > 0
     ## If the strategy is not printing, add checks here to verify that tokens were emitted
 
     chain.sleep(days(1))
