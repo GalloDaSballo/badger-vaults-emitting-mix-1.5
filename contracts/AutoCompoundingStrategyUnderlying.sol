@@ -12,7 +12,7 @@ import {ISett15} from "../../interfaces/badger/ISett15.sol";
 
 
 /// @dev A autocompounding strategy denominated in the underlying
-/// TODO: Double check the math please
+/// NOTE: Unused code, but you can build on top of it
 contract AutoCompoundingStrategyUnderlying is BaseStrategy {
     // address public want; // Inherited from BaseStrategy
     // uint256 public constant MAX_BPS = 10_000; // Inherited from BaseStrategy
