@@ -31,8 +31,12 @@ For that reason, this mix is for advanced developers only as it's very hard to h
 
 ----
 
+## Common Error Message
+![Revert Amount 0](/.github/revert0.png)
+If you're getting this error message, it means that your strategy is not profitable
 
-# COPIED FROM 1.5 MIX Use your brain
+
+# COPIED FROM 1.5 MIX
 ## What you'll find here 
 
 - Basic Solidity Smart Contract for creating your own Badger Strategy ([`contracts/EmittingStrategy.sol`](contracts/EmittingStrategy.sol))
