@@ -80,25 +80,21 @@ contract AutoCompoundingStrategyUnderlying is BaseStrategy {
     /// @notice just unlock the funds and return the amount you could unlock
     function _withdrawSome(uint256 _amountOfUnderlying) internal override returns (uint256) {
         // Given conversion rate, withdraw what needs to be withdrawn
+
+        // Let ppfs = p
+        // withdrawal fee = f
+        // If s shares => s * p * (1 - w) underlying
+        // Then x underlying => x / (p * (1 - w)) shares to withdraw
+
         uint256 shares = emittingVault.balanceOf(address(this));
 
         uint256 pricePerFullShare = emittingVault.getPricePerFullShare();
 
         uint256 withdrawalFee = emittingVault.withdrawalFee();
 
-        // Calculate shares from out
-        uint256 sharesFromOut = _amountOfUnderlying.mul(ONE_ETH).div(pricePerFullShare);
+        uint256 sharesToWithdraw = _amountOfUnderlying.mul(ONE_ETH).mul(MAX_BPS).div(pricePerFullShare).div(MAX_BPS.sub(withdrawalFee));
 
-        // Calculate fee from out
-        uint256 feeFromOut = _amountOfUnderlying.mul(withdrawalFee).div(MAX_BPS);
-
-        // Calculate shares from fee
-        uint256 sharesFromFee = feeFromOut.mul(ONE_ETH).div(pricePerFullShare);
-
-        // Add them
-        uint256 totalShares = sharesFromOut.add(sharesFromFee);
-
-        emittingVault.withdraw(totalShares);
+        emittingVault.withdraw(sharesToWithdraw);
 
         return _amountOfUnderlying;
     }
