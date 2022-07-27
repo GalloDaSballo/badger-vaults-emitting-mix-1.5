@@ -84,6 +84,7 @@ contract EmittingStrategy is BaseStrategy {
         
         // Use this if your strategy doesn't sell the extra tokens
         // This will take fees and send the token to the badgerTree
+        // NOTE: Reverts if 0 amount
         _processExtraToken(cachedReward, balanceOfReward); // Emit the token here
 
         return harvested;
