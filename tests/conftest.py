@@ -100,7 +100,6 @@ def reward_whale():
 @pytest.fixture
 def badgerTree(deployer):
   c = BadgerTree.deploy({"from": deployer})
-  c.startNextEpoch()
 
   return c
 

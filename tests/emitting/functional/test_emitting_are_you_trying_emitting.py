@@ -66,7 +66,6 @@ def test_are_you_trying(deployer, user, reward, reward_whale, badgerTree, vault,
     ## Wait for end of epoch
     chain.sleep(badgerTree.SECONDS_PER_EPOCH() + 1)
     chain.mine()
-    badgerTree.startNextEpoch({"from": user})
 
     user_reward_balance_prev = reward.balanceOf(user)
 
