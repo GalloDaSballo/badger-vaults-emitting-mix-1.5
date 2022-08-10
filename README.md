@@ -3,9 +3,21 @@
 
 EmittingStrategy -> Farms tokens, emits to Tree
 
-Tree = RewardsManager / BadgerRewards
+Tree = RewardsManager@1.1
 
 AutoCompoundingStrategy -> Deposits into EmittingStrategy, Claims from Tree, Dumps the tokens <- delete comment after fork
+
+# WARNING
+
+DO NOT USE FOR SELF-EMISSIONS (e.g. bveCVX -> bveCVX)
+
+RewardsManager@1.1 is fully audited and will work extremely well for handling all emissions
+
+However the distribution of the same vault as reward for itself will make it unfair to late claimers.
+
+If you have to emit in that way, ask depositors to claim each EPOCH (week) or perhaps setup a bot to do that for them
+
+
 
 ## Notes on mix assumptions
 
